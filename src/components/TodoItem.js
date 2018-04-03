@@ -1,8 +1,18 @@
 import React, { Component } from 'react';
 import Button from './Button';
 import InputCheckbox from './InputCheckbox';
+import TodoActions from '../flux/TodoActions';
 
 class TodoItem extends Component {
+
+  handleToggle(todoId) {
+    TodoActions.toggleItem(todoId);
+  }
+
+  handleDelete(todoId) {
+    TodoActions.deleteItem(todoId);
+  }
+
   render() {
     const { onClick, onChange, completed, title, canDelete, canUpdate, ...itemProps } = this.props;
 
@@ -10,7 +20,7 @@ class TodoItem extends Component {
       const completeProps = {
         ...itemProps,
         checked: completed,
-        onChange: canUpdate ? () => onChange(this.props.id) : () => alert(`You are not allowed to update this item`),
+        onChange: canUpdate ? () => this.handleToggle(this.props.id) : () => alert(`You are not allowed to update this item`),
 
       };
       return <InputCheckbox {...completeProps} />;
@@ -19,7 +29,7 @@ class TodoItem extends Component {
     const DeleteItem = () => {
       const deleteProps = {
         ...itemProps,
-        onClick: canDelete ? () => onClick(this.props.id) : () => alert(`You are not allowed to delete this item`),
+        onClick: canDelete ? () => this.handleDelete(this.props.id) : () => alert(`You are not allowed to delete this item`),
       };
       return <Button {...deleteProps}>Delete</Button>;
     };

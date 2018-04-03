@@ -39,14 +39,6 @@ export default class App extends Component {
     TodoStore.removeChangeListener(this._onChange);
   }
 
-  handleToggle(todoId) {
-    TodoActions.toggleItem(todoId);
-  };
-
-  handleDelete(todoId) {
-    TodoActions.deleteItem(todoId);
-  };
-
   handleSubmit(e) {
     e.preventDefault();
 
@@ -136,7 +128,7 @@ export default class App extends Component {
       <div>
         <h3>Showing {this.state.todoFilter} todo items</h3>
         <FilterTodoListButtons />
-        <TodoList todoList={todoListFiltered(this.state.todoFilter)} onChange={i => this.handleToggle(i)} onClick={i => this.handleDelete(i)} />
+        <TodoList todoList={todoListFiltered(this.state.todoFilter)} />
         <form onSubmit={e => this.handleSubmit(e)}>
           <p>Separate with comma for multiple todo items.<br />
             <InputText value={this.state.todoInput} onChange={e => this.handleInputChange(e)} />
