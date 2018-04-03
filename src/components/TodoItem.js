@@ -10,23 +10,17 @@ class TodoItem extends Component {
       const completeProps = {
         ...itemProps,
         checked: completed,
-        onChange: () => onChange(this.props.id),
+        onChange: canUpdate ? () => onChange(this.props.id) : () => alert(`You are not allowed to update this item`),
 
       };
-      if (!canUpdate && canUpdate !== undefined) {
-        completeProps.onChange = () => alert(`You are not allowed to update this item`);
-      }
       return <InputCheckbox {...completeProps} />;
     };
 
     const DeleteItem = () => {
       const deleteProps = {
         ...itemProps,
-        onClick: () => onClick(this.props.id),
+        onClick: canDelete ? () => onClick(this.props.id) : () => alert(`You are not allowed to delete this item`),
       };
-      if (!canDelete && canDelete !== undefined) {
-        deleteProps.onClick = () => alert(`You are not allowed to delete this item`);
-      }
       return <Button {...deleteProps}>Delete</Button>;
     };
 
