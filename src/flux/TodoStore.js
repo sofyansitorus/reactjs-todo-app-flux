@@ -47,13 +47,14 @@ class TodoStore extends EventEmitter {
   }
 
   _toggleItem(todoId) {
-    _todoState = _todoState.slice().map(todo => {
-      if (todoId !== todo.id) {
-        return todo;
+    const todo_items = this.getAllItems().slice().map((item) => {
+      if (todoId !== item.id) {
+        return item;
       }
-      todo.completed = !todo.completed;
-      return todo;
+      item.completed = !item.completed;
+      return item;
     });
+    Lockr.set('todo_items', todo_items); // Saved as string
     this.emit(CHANGE);
   }
 

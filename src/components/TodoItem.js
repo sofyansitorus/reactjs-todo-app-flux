@@ -24,8 +24,12 @@ class TodoItem extends Component {
       return <Button {...deleteProps}>Delete</Button>;
     };
 
+    const itemStyle = {
+      textDecoration: completed ? 'line-through' : 'none'
+    };
+
     return (
-      <li className={`todo-item ${completed ? 'completed' : ''}`}>
+      <li style={itemStyle}>
         <CompleteItem />
         <span className="todo-item-text">{title}</span>
         <DeleteItem />
