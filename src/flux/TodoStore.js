@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import Lockr from 'lockr';
 import Dispatcher from './Dispatcher';
 import ActionTypes from './ActionTypes';
 
@@ -31,14 +32,17 @@ class TodoStore extends EventEmitter {
 
   // Adds a new item to the list and emits a CHANGED event.
   _addNewItem(item) {
-    _todoState.push(item);
+    const todo_items = this.getAllItems();
+    todo_items.push(item);
+    Lockr.set('todo_items', todo_items); // Saved as string
     this.emit(CHANGE);
   }
 
   _deleteItem(todoId) {
-    _todoState = _todoState.slice().filter((item) => {
+    const todo_items = this.getAllItems().slice().filter((item) => {
       return item.id !== todoId;
     });
+    Lockr.set('todo_items', todo_items); // Saved as string
     this.emit(CHANGE);
   }
 
@@ -55,7 +59,7 @@ class TodoStore extends EventEmitter {
 
   // Returns the current store's state.
   getAllItems() {
-    return _todoState;
+    return Lockr.get('todo_items');
   }
 
   // Hooks a React component's callback to the CHANGE event.
