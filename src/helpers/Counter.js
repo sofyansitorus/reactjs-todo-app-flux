@@ -1,7 +1,6 @@
 let _counter = 0;
 
 const Counter = {
-  _counter: 0,
   increment() {
     return ++_counter;
   },
