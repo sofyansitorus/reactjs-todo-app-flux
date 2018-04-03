@@ -3,38 +3,40 @@ import TodoList from './TodoList';
 import TodoItem from './TodoItem';
 import InputText from './InputText';
 import Button from './Button';
+import Counter from '../helpers/Counter';
 
 export default class App extends Component {
   constructor(props) {
     super(props);
 
     const todoList = [{
-      id: 1,
-      title: 'Exercise (Update not allowed)',
-      completed: false,
-      canUpdate: false,
+      id: Counter.increment(),
+      title: 'Exercise',
+      completed: Math.random() >= 0.5,
+      canUpdate: Math.random() >= 0.5,
+      canDelete: Math.random() >= 0.5,
     }, {
-      id: 2,
+      id: Counter.increment(),
       title: 'Breakfast',
-      completed: true
+      completed: Math.random() >= 0.5,
+      canUpdate: Math.random() >= 0.5,
+      canDelete: Math.random() >= 0.5,
     }, {
-      id: 3,
-      title: 'Take a shower (Delete not allowed)',
-      completed: false,
-      canDelete: false,
+      id: Counter.increment(),
+      title: 'Take a shower',
+      completed: Math.random() >= 0.5,
+      canUpdate: Math.random() >= 0.5,
+      canDelete: Math.random() >= 0.5,
     }];
 
-    const todoLastId = todoList.length ? todoList[todoList.length - 1].id : 0;
-
     this.state = {
-      todoLastId,
       todoList,
       todoInput: '',
       todoFilter: 'all',
     };
   }
 
-  handleComplete(todoId) {
+  handleToggle(todoId) {
     const todoList = this.state.todoList.map(todo => {
       if (todoId !== todo.id) {
         return todo;
@@ -49,18 +51,12 @@ export default class App extends Component {
   };
 
   handleDelete(todoId) {
-    let todoLastId = 0;
-
     const todoList = this.state.todoList.filter((todo, index, self) => {
       return todo.id !== todoId;
-    }).map(todo => {
-      todo.id = ++todoLastId; // Re-assign todo.id to avoid jumping id sequence.
-      return todo;
     });
 
     this.setState({
-      todoLastId,
-      todoList: [...todoList],
+      todoList,
     });
   };
 
@@ -78,23 +74,27 @@ export default class App extends Component {
       return;
     }
 
-    let todoLastId = this.state.todoLastId;
     const todoList = [
       ...this.state.todoList,
       ...todoInput.map(title => {
-        return { id: ++todoLastId, title: title, completed: false };
+        return {
+          id: Counter.increment(),
+          title: title,
+          completed: false,
+          canUpdate: Math.random() >= 0.5,
+          canDelete: Math.random() >= 0.5
+        };
       })
     ];
 
     this.setState({
-      todoLastId,
       todoList,
       todoInput: '',
       todoFilter: 'all',
     });
   };
 
-  handleChange(e) {
+  handleInputChange(e) {
     this.setState({ todoInput: e.target.value });
   }
 
@@ -152,11 +152,11 @@ export default class App extends Component {
       <div>
         <form onSubmit={e => this.handleSubmit(e)}>
           <p>Separate with comma for multiple todo items. Press "ENTER" key or click "Add todo!" button to submit.</p>
-          <InputText value={this.state.todoInput} onChange={e => this.handleChange(e)} />
+          <InputText value={this.state.todoInput} onChange={e => this.handleInputChange(e)} />
           <Button type="submit" label="Add todo!" />
         </form>
         <h3>Showing {this.state.todoFilter} todo items</h3>
-        <TodoList todoList={todoListFiltered(this.state.todoFilter)} onChange={i => this.handleComplete(i)} onClick={i => this.handleDelete(i)} />
+        <TodoList todoList={todoListFiltered(this.state.todoFilter)} onChange={i => this.handleToggle(i)} onClick={i => this.handleDelete(i)} />
         <FilterTodoListButtons />
       </div>
     );
