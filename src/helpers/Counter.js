@@ -6,7 +6,8 @@ const Counter = {
     return ++_counter;
   },
   reset(baseCounter) {
-    _counter = parseInt((baseCounter || 0));
+    const base = (baseCounter || 0);
+    _counter = parseInt(base);
   },
 };
 

@@ -11,8 +11,13 @@ export default class App extends Component {
   constructor(props) {
     super(props);
 
+    const todoList = TodoStore.getAllItems();
+
+    const itemLastId = todoList.length ? todoList[(todoList.length - 1)].id : 0;
+    Counter.reset(itemLastId);
+
     this.state = {
-      todoList: TodoStore.getAllItems(),
+      todoList,
       todoInput: '',
       todoFilter: 'all',
     };
@@ -134,7 +139,7 @@ export default class App extends Component {
         <TodoList todoList={todoListFiltered(this.state.todoFilter)} onChange={i => this.handleToggle(i)} onClick={i => this.handleDelete(i)} />
         <form onSubmit={e => this.handleSubmit(e)}>
           <p>Separate with comma for multiple todo items.<br />
-          <InputText value={this.state.todoInput} onChange={e => this.handleInputChange(e)} />
+            <InputText value={this.state.todoInput} onChange={e => this.handleInputChange(e)} />
           </p>
           <p>
             <Button type="submit" label="Add todo!" /><br />Press "ENTER" key or click "Add todo!" button to submit.
