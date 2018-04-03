@@ -4,60 +4,42 @@ import TodoItem from './TodoItem';
 import InputText from './InputText';
 import Button from './Button';
 import Counter from '../helpers/Counter';
+import TodoActions from '../flux/TodoActions';
+import TodoStore from '../flux/TodoStore';
 
 export default class App extends Component {
   constructor(props) {
     super(props);
 
-    const todoList = [{
-      id: Counter.increment(),
-      title: 'Exercise',
-      completed: Math.random() >= 0.5,
-      canUpdate: Math.random() >= 0.5,
-      canDelete: Math.random() >= 0.5,
-    }, {
-      id: Counter.increment(),
-      title: 'Breakfast',
-      completed: Math.random() >= 0.5,
-      canUpdate: Math.random() >= 0.5,
-      canDelete: Math.random() >= 0.5,
-    }, {
-      id: Counter.increment(),
-      title: 'Take a shower',
-      completed: Math.random() >= 0.5,
-      canUpdate: Math.random() >= 0.5,
-      canDelete: Math.random() >= 0.5,
-    }];
-
     this.state = {
-      todoList,
+      todoList: TodoStore.getAllItems(),
       todoInput: '',
       todoFilter: 'all',
     };
+
+    this._onChange = this._onChange.bind(this);
+
+    this._enableRandomBoolen = false; // Set this to 'true' to enable random boolean for canUpdate and canDelete item value.
+  }
+
+  _onChange() {
+    this.setState({ todoList: TodoStore.getAllItems() });
+  }
+
+  componentWillMount() {
+    TodoStore.addChangeListener(this._onChange);
+  }
+
+  componentWillUnmount() {
+    TodoStore.removeChangeListener(this._onChange);
   }
 
   handleToggle(todoId) {
-    const todoList = this.state.todoList.map(todo => {
-      if (todoId !== todo.id) {
-        return todo;
-      }
-      todo.completed = !todo.completed;
-      return todo;
-    });
-
-    this.setState({
-      todoList: [...todoList],
-    });
+    TodoActions.toggleItem(todoId);
   };
 
   handleDelete(todoId) {
-    const todoList = this.state.todoList.filter((todo, index, self) => {
-      return todo.id !== todoId;
-    });
-
-    this.setState({
-      todoList,
-    });
+    TodoActions.deleteItem(todoId);
   };
 
   handleSubmit(e) {
@@ -68,27 +50,24 @@ export default class App extends Component {
       return;
     }
 
-    const todoInput = this.filterTodoInput();
+    const todoInput = this._filterTodoInput();
     if (!todoInput.length) {
       alert('Input is duplicate');
       return;
     }
 
-    const todoList = [
-      ...this.state.todoList,
-      ...todoInput.map(title => {
-        return {
-          id: Counter.increment(),
-          title: title,
-          completed: false,
-          canUpdate: Math.random() >= 0.5,
-          canDelete: Math.random() >= 0.5
-        };
-      })
-    ];
+    todoInput.forEach(title => {
+      const newItem = {
+        id: Counter.increment(),
+        title: title,
+        completed: false,
+        canUpdate: this._randomBoolean(),
+        canDelete: this._randomBoolean()
+      }
+      TodoActions.addNewItem(newItem);
+    });
 
     this.setState({
-      todoList,
       todoInput: '',
       todoFilter: 'all',
     });
@@ -150,19 +129,22 @@ export default class App extends Component {
 
     return (
       <div>
-        <form onSubmit={e => this.handleSubmit(e)}>
-          <p>Separate with comma for multiple todo items. Press "ENTER" key or click "Add todo!" button to submit.</p>
-          <InputText value={this.state.todoInput} onChange={e => this.handleInputChange(e)} />
-          <Button type="submit" label="Add todo!" />
-        </form>
         <h3>Showing {this.state.todoFilter} todo items</h3>
-        <TodoList todoList={todoListFiltered(this.state.todoFilter)} onChange={i => this.handleToggle(i)} onClick={i => this.handleDelete(i)} />
         <FilterTodoListButtons />
+        <TodoList todoList={todoListFiltered(this.state.todoFilter)} onChange={i => this.handleToggle(i)} onClick={i => this.handleDelete(i)} />
+        <form onSubmit={e => this.handleSubmit(e)}>
+          <p>Separate with comma for multiple todo items.<br />
+          <InputText value={this.state.todoInput} onChange={e => this.handleInputChange(e)} />
+          </p>
+          <p>
+            <Button type="submit" label="Add todo!" /><br />Press "ENTER" key or click "Add todo!" button to submit.
+          </p>
+        </form>
       </div>
     );
   }
 
-  filterTodoInput() {
+  _filterTodoInput() {
     return this.state.todoInput.split(',')
       .map(todo => todo.trim()) // Trim white space for todo input
       .filter((todo, index, self) => {
@@ -170,5 +152,9 @@ export default class App extends Component {
           && self.map(todoSelf => todoSelf.toLowerCase()).indexOf(todo.toLowerCase()) === index // Remove duplicate against new todoList
           && !this.state.todoList.find(todoExisting => todoExisting.title.toLowerCase() === todo.toLowerCase()); // Remove duplicate against existing todoList
       });
+  }
+
+  _randomBoolean() {
+    return this._enableRandomBoolen ? (Math.random() >= 0.5) : true;
   }
 }
